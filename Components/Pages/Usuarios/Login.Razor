@@ -1,0 +1,64 @@
+@page "/usuarios/login" 
+@rendermode InteractiveServer
+@inject RpgBlazor.Services.UsuarioService UsuarioService
+@inject ILocalStorageService LocalStorage
+@using RpgBlazor.Models
+@using Blazored.LocalStorage;
+<h3>Login de Usuário</h3>
+<hr />
+@if (!string.IsNullOrEmpty(mensagem))
+{
+    <div class="alert alert-success">@mensagem</div>
+}
+else if (!string.IsNullOrEmpty(mensagemErro))
+{
+    <div class="alert alert-danger">@mensagemErro</div>
+}
+ 
+<EditForm Model="@usuario" OnValidSubmit="@AutenticarUsuario" FormName="usuario">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="mb-3">
+        <label>Usuário:</label>        
+        <InputText @bind-value="usuario.Username" class="form-control"/>
+    </div>
+    <div class="mb-3">
+        <label>Senha:</label>
+        <InputText @bind-value="usuario.PasswordString" type="password" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-success">
+        Entrar
+    </button>
+    <a href="usuarios/registrar" class="btn btn-info">
+        Não tem conta? Registrar
+    </a>
+</EditForm>
+
+ @code
+ {
+    private UsuarioViewModel usuario = new();
+    private string mensagem = string.Empty;
+    private string mensagemErro = string.Empty;
+
+    private async Task AutenticarUsuario()
+    {
+        try
+        {
+            var usuarioRetorno = await UsuarioService.AutenticarAsync(usuario);
+            if (!string.IsNullOrEmpty(usuarioRetorno.Token))
+            {
+                mensagem = "Usuário autenticado com sucesso!";
+                await LocalStorage.SetItemAsync("UsuarioToken", usuarioRetorno.Token);
+            }
+            else
+            {
+                mensagemErro = "Falha na autenticação. Verifique suas credenciais.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensagemErro = ex.Message;
+        }
+    }
+    
+}
