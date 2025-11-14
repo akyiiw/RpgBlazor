@@ -46,8 +46,8 @@ else if (!string.IsNullOrEmpty(mensagemErro))
                 mensagem = "Usuário registrado com sucesso!";
                 mensagemErro = string.Empty;
 
-                StateHasChanged(); // 👈 força renderização
-                await Task.Delay(4000);
+                StateHasChanged();
+                await Task.Delay(10000);
 
                 Navigation.NavigateTo("/usuarios/login");
             }
