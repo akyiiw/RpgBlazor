@@ -1,0 +1,86 @@
+@page "/personagens/cadastro/{Id:int?}"
+@rendermode InteractiveServer
+@inject RpgBlazor.Services.PersonagemService PersonagemService
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
+@using RpgBlazor.Models
+@using Blazored.LocalStorage;
+
+<EditForm Model="@personagem" OnValidSubmit="CadastrarPersonagem">
+<DataAnnotationsValidator />
+<ValidationSummary />
+<div class="mb-3">
+    <label>Nome:</label>
+    <InputText @bind-Value="personagem.Nome" class="form-control" />
+        </div>
+        <div class="mb-3">
+    <label>Pontos de Vida:</label>
+    <InputNumber @bind-Value="personagem.PontosVida" class="form-control" />
+        </div>
+        <div class="mb-3">
+    <label>Classe:</label>
+    <InputSelect @bind-Value="personagem.Classe" class="form-control">
+    <option value="0">---Selecione---</option>
+        @foreach (var item in Enum.GetValues(typeof(RpgBlazor.Models.Enuns.ClasseEnum)))
+        {
+        <option value="@item">@item</option>
+        }
+    </InputSelect>
+</div>
+<button type="submit" class="btn btn-primary">Cadastrar</button>
+<a href="personagens/index" class="btn btn-warning">Retornar</a>
+</EditForm>
+
+@code {
+    private PersonagemViewModel personagem = new();
+    private string mensagem = string.Empty;
+    private string mensagemErro = string.Empty;
+    [Parameter]
+    public int? Id { get; set; }
+
+    // Métodos aqui
+    private async Task CadastrarPersonagem()
+    {
+        try
+        {
+            var token = await LocalStorage.GetItemAsync<string>("UsuarioToken");
+            var personagemRetorno = await PersonagemService.InsertAsync(token, personagem);
+            if (personagemRetorno.Id != 0)
+            {
+                mensagem = "Personagem registrado com sucesso!";
+                Navigation.NavigateTo("/personagens/index");
+            }
+        }
+        catch (Exception ex)
+        {
+            mensagemErro = ex.Message;
+        }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (firstRender)
+            {
+                if (Id.HasValue && Id > 0)
+                {
+                    var token = await LocalStorage.GetItemAsync<string>("UsuarioToken");
+                    personagem = await PersonagemService.GetByIdAsync(token, Id.Value);
+
+                    if (personagem == null)
+                    {
+                        mensagemErro = "Personagem não encontrado!";
+                        personagem = new();
+                    }
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            mensagemErro = ex.Message;
+        }
+    }
+}
+}
+

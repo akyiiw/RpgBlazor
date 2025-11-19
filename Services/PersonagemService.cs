@@ -59,6 +59,27 @@ namespace RpgBlazor.Services
                 throw new Exception(responseContent);
             }
         }
+
+        public async Task<PersonagemViewModel> GetByIdAsync(string token, int id)
+        {
+            _http.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _http.GetAsync($"personagens/{id}");
+            var responseContent = await response.Content.ReadAsStringAsync();
+            PersonagemViewModel personagem = new PersonagemViewModel();
+
+            if (response.IsSuccessStatusCode)
+            {
+                personagem = JsonSerializer
+                    .Deserialize<PersonagemViewModel>(responseContent, JsonSerializerOptions.Web);
+                return personagem;
+            }
+            else
+            {
+                throw new Exception(responseContent);
+            }
+        }
     }
 }
 

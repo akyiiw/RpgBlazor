@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @inject RpgBlazor.Services.PersonagemService PersonagemService
 @inject ILocalStorageService LocalStorage
+@inject NavigationManager Navigation
 @using RpgBlazor.Models
 @using Blazored.LocalStorage;
 
@@ -36,6 +37,7 @@ else
                 <th>Disputas</th>
                 <th>Vitórias</th>
                 <th>Derrotas</th>
+                <th>Ações</th>
             </tr>
         </thead>
         <tbody>
@@ -49,6 +51,11 @@ else
                     <td>@personagem.Disputas</td>
                     <td>@personagem.Vitorias</td>
                     <td>@personagem.Derrotas</td>
+                    <td>
+                    <button class="btn btn-warning btn-sm" @onclick="() => EditarPersonagem(personagem.Id)">
+                    <i class="bi bi-pencil"></i> Editar
+                    </button>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -82,6 +89,10 @@ else
         {
             StateHasChanged();
         }
-    }   
+    }
+    private void EditarPersonagem(int id)
+    {
+        Navigation.NavigateTo($"/personagens/cadastro/{id}");
+    }
 }
 
