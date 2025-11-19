@@ -1,6 +1,6 @@
-using RpgBlazor.Components;
 using RpgBlazor.Services;
 using Blazored.LocalStorage;
+using RpgBlazor.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 

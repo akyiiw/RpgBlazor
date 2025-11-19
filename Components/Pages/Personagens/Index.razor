@@ -1,0 +1,87 @@
+@page "/personagens/index"
+@rendermode InteractiveServer
+@inject RpgBlazor.Services.PersonagemService PersonagemService
+@inject ILocalStorageService LocalStorage
+@using RpgBlazor.Models
+@using Blazored.LocalStorage;
+
+@if (!string.IsNullOrEmpty(mensagem))
+{
+    <div class="alert alert-success">@mensagem</div>
+}
+else if (!string.IsNullOrEmpty(mensagemErro))
+{
+    <div class="alert alert-danger">@mensagemErro</div>
+}
+
+<PageTitle>Personagens</PageTitle>
+<h1>Personagens</h1>
+<p>Listagem de Personagens</p>
+<NavLink class="btn btn-info" href="/personagens/cadastro">
+    <i class="bi bi-plus-lg"></i> Novo
+</NavLink>
+@if (lista == null)
+{
+    <p><em>Carregando...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nome</th>
+                <th>Classe</th>
+                <th>Pontos Vida</th>
+                <th>Disputas</th>
+                <th>Vitórias</th>
+                <th>Derrotas</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var personagem in lista)
+            {
+                <tr>
+                    <td>@personagem.Id</td>
+                    <td>@personagem.Nome</td>
+                    <td>@personagem.Classe</td>
+                    <td>@personagem.PontosVida</td>
+                    <td>@personagem.Disputas</td>
+                    <td>@personagem.Vitorias</td>
+                    <td>@personagem.Derrotas</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<PersonagemViewModel> lista = null;
+    private string mensagem = string.Empty;
+    private string mensagemErro = string.Empty;
+
+    private async Task CarregarPersonagens()
+    {
+        var token = await LocalStorage.GetItemAsync<string>("UsuarioToken");
+        lista = await PersonagemService.GetAllAsync(token);
+    }
+    //Próximos métodos aqui
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (firstRender)
+                await CarregarPersonagens();
+        }
+        catch (Exception ex)
+        {
+            mensagemErro = ex.Message;
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+    }   
+}
+
